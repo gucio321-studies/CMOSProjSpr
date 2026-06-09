@@ -1,0 +1,12 @@
+[project]
+name = "FTReportTemplate"
+description = "A generic Scientific report template designed for AGH Physics labs"
+version = "1.4.0"
+requires-python = ">=3.12"
+dependencies = [
+        "sphinx==9.1.0",
+        "myst-parser==5.1.0",
+        "cloud-sptheme==1.10.1.post20200504175005",
+        "sphinxcontrib-images==1.0.1",
+        "sphinxcontrib-plot @ git+https://github.com/gucio321/sphinxcontrib-plot@06af7fc710ba1cb3fc4f9eb83dcf3de5969e2699"
+]

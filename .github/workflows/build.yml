@@ -1,0 +1,112 @@
+name: Build PDF document
+on: 
+  push:
+    branch:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-pdf:
+    runs-on: ubuntu-latest
+    steps:
+    - name: check out code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+    - name: install  ubuntu dependencies
+      run: |
+        sudo apt -y update
+        sudo apt -y install gnuplot
+    - name: Set up python3
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+        cache: 'pip' # caching pip dependencies
+    - name: install python3 dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install setuptools
+    - name: setup texlive
+      uses: zauguin/install-texlive@v4
+      with:
+        packages: |
+          # to list local packages use: tlmgr info --list --data name
+          scheme-basic
+          latexmk
+          cmap
+          cancel
+          tex-gyre
+          fncychap
+          float
+          wrapfig
+          capt-of
+          framed
+          babel-polish
+          fancyvrb
+          upquote
+          needspace
+          tabulary
+          varwidth
+          booktabs
+          parskip
+          titlesec
+          etoolbox
+          makecell
+          caption
+          xcolor
+    - name: build PDF
+      run: make latexpdf
+    - name: extract file name
+      run: |
+        # extract filename from conf.py (it is a value of variable 'project' in lowercase)
+        echo "filename=$(grep project conf.py | gawk '{gsub(/'\''/,"",$3); print tolower($3)}')" >> $GITHUB_ENV
+    - name: do some trick ;-)
+      shell: bash
+      run: |
+        echo "The file name is $filename"
+        stat "_build/latex/${filename}.pdf"
+        mv "_build/latex/${filename}.pdf" ..
+        rm -rf *
+        git add .
+        git config user.name gucio321
+        git config user.email gucio321@protonmail.com
+        mv ../${filename}.pdf .
+        git add .
+        git commit --amend --no-edit
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: pdf
+        force: true
+  update-url:
+    needs: [build-pdf]
+    runs-on: ubuntu-latest
+    steps:
+    - name: check out code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+    - name: extract file name
+      run: |
+        # extract filename from conf.py (it is a value of variable 'project' in lowercase)
+        echo "filename=$(grep project conf.py | gawk '{gsub(/'\''/,"",$3); print tolower($3)}')" >> $GITHUB_ENV
+    - name: edit README
+      run: |
+        # replace content of README.md between <!--AUTOURL-BEGIN--> and <!--AUTOURL-END--> with the link to the PDF file
+        sed -i -e "/\(<\!--AUTOURL-BEGIN-->\)/, /\(<\!--AUTOURL-END-->\)/c\<\!--AUTOURL-BEGIN-->\n<a href=\"https://github.com/${{ github.repository }}/blob/pdf/$filename.pdf\">\n<\!--AUTOURL-END-->" README.md
+    - name: commit
+      uses: stefanzweifel/git-auto-commit-action@v7
+      with:
+        commit_message: Update README.md with the link to the PDF file
+        commit_options: '--no-verify'
+        file_pattern: README.md
+        commit_user_name: gucio321
+        commit_user_email: gucio321@protonmail.com
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        force: true
+
