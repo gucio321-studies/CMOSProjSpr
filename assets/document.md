@@ -64,7 +64,9 @@ Poniżej przedstawiono schemat części wyjściowej przetwornika:
 Schemat części wyjściowej przetwornika cyfrowo-analogowego.
 ```
 
-Wykonano symulacje shematową typu transient dla całego układu, podająć na wejście przetwornika sygnał cyfrowy
+### Symulacja po schemacie
+
+Wykonano symulacje shematową typu transient dla całego układu, podając na wejście przetwornika sygnał cyfrowy
 o okresie $T_{LSB} = 20 \mu s$.
 
 ```{plot} gnuplot
@@ -132,6 +134,15 @@ Oscylacje są spowodowane niestabilnością wzmacniacza operacyjnego i w trakcie
 Obecny stan jest akceptowalny w kontekście niniejszego projektu.
 ```
 
+Poniższy wykres przedstawia wartości DNL dla poszczegulnych schodków
+
+```{execute_call}
+print("dupa dupa dupa")
+"dupa dupaaaa"
+```
+
+### Layout
+
 Wykonano layout przetwornika korzystając z narzędzie `Layout XL`:
 
 ```{figure} data/dac_layout.png
@@ -141,8 +152,8 @@ Layout przetwornika cyfrowo-analogowego.
 Następnie stworzono ekstrakt z layout'u i powturzono symulacje otrzymując następujące wyniki:
 
 ```{important}
-Z powodu podejrzewanego błędu w extraktorze, ekstrakcji dokonano uwzględniając **wyłącznie pojemności pasożytnicze* (tzw. "C only").
-Przy prubie ekstrakcji uwzględniająćej opory, układ przestawał działać.
+Z powodu podejrzewanego błędu w extraktorze, ekstrakcji dokonano uwzględniając **wyłącznie pojemności pasożytnicze** (tzw. "C only").
+Przy prubie ekstrakcji uwzględniającej opory, układ przestawał działać poprawnie.
 ```
 
 ```{plot} gnuplot
@@ -203,6 +214,18 @@ plot "assets/data/dac_sim_postext.vcsv" using \
 (($1 > (t0 - t_prev) && $1 < t0 + dt) ? $1*1e6 : NaN):2 \
 with lines lw 2 \
 title "Napięcie wyjściowe przetwornika w trakcie zmiany stanu"
+```
+
+### Porównanie wyników symulacji
+
+```{table} Porównanie wyników symulacji z wartościami oczekiwanymi
+| Parametr | Wartość oczekiwana | Wartość w symulacji po schemacie | Wartość w symulacji po ekstrakcie | Jednostka |
+|---|---|---|---|---|
+| $V_{min}$ | 1 | 1.04 | 1.12 | V |
+| $V_{max}$ | 2 | 2.06 | 2.06 | V |
+| $INL$ |  |  |  | - |
+```
+
 # Obliczenia
 
 # Szacowanie niepewności
