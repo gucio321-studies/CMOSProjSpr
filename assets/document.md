@@ -50,10 +50,151 @@ Schemat symulacyjny wzmacniacza operacyjnego.
 
 ```
 
+```{plot} gnuplot
+:caption: Wzmocnienie oraz margines fazy wzmacniacza operacyjnego w symulacji po schemacie.
+
+set datafile separator ","
+
+file = "assets/data/opamp_sim_stb_schematic.csv"
+
+# Wzmocnienie przy najniższej częstotliwości
+stats file using 2 every ::1::1 nooutput
+A0 = STATS_min
+
+# Poziom -3 dB
+A3 = A0 - 3.0
+
+# Znalezienie pierwszego punktu poniżej A0-3dB
+stats file using (($2 <= A3) ? $1 : 1/0) nooutput
+f3db = STATS_min
+
+# Wartość wzmocnienia w tym punkcie
+stats file using (($1 == f3db) ? $2 : 1/0) nooutput
+gain3db = STATS_min
+
+set logscale x
+set grid
+
+set xlabel "Częstotliwość [Hz]" font ",24"
+
+set ylabel "Wzmocnienie [dB]" font ",24"
+set y2label "Margines fazy [deg]" font ",24"
+set y2tics font ",20"
+set ytics font ",20"
+set xtics font ",20"
+
+set key left bottom box font ",24"
+
+set arrow from f3db, graph 0 to f3db, graph 1 \
+    nohead dt 2 lc rgb "red"
+
+set label sprintf("%.3g -3 dB @ %.3g Hz", A0, f3db) \
+    at f3db, gain3db offset 1,1 tc rgb "red"
+
+plot \
+    file every ::1 using 1:2 with lines lw 2 title "Loop Gain", \
+    file every ::1 using 3:(180+$4) axes x1y2 with lines lw 2 title "Phase Margin", \
+    '+' using (f3db):(gain3db) with points pt 7 ps 1.5 lc rgb "red" notitle
+```
+
+Na poniższym wykresie przedstawiono odpowiedź wzmacniacza na skok napięcia.
+
+```{plot} gnuplot
+:caption: Odpowiedź na skok napięcia wzmacniacza operacyjnego w symulacji po schemacie.
+
+set datafile separator ","
+file = "assets/data/opamp_sim_tran_schematic.csv"
+
+set xlabel "Czas [s]" font ",24"
+set ylabel "Napięcie [V]" font ",24"
+set key box font ",24"
+set xtics font ",20"
+set ytics font ",20"
+
+plot file using 1:2 with lines title "Odpowiedź wzmacniacza", \
+file using 1:4 with lines title "Przebieg idealny"
+```
+
 Dla schematu {numref}`opamp_sch` wykonano layout:
 
 ```{figure} data/opamp_layout.png
 Layout wzmacniacz operacyjnego.
+```
+
+Następnie przeprowadzono analogiczną analize wzmacniacza dla extraktu z layoutu.
+
+```{plot} gnuplot
+:caption: Wzmocnienie oraz margines fazy wzmacniacza operacyjnego w symulacji po ekstrakcie.
+
+set datafile separator ","
+
+file = "assets/data/opamp_sim_stb_postext.csv"
+
+# Wzmocnienie przy najniższej częstotliwości
+stats file using 2 every ::1::1 nooutput
+A0 = STATS_min
+
+# Poziom -3 dB
+A3 = A0 - 3.0
+
+# Znalezienie pierwszego punktu poniżej A0-3dB
+stats file using (($2 <= A3) ? $1 : 1/0) nooutput
+f3db = STATS_min
+
+# Wartość wzmocnienia w tym punkcie
+stats file using (($1 == f3db) ? $2 : 1/0) nooutput
+gain3db = STATS_min
+
+set logscale x
+set grid
+
+set xlabel "Częstotliwość [Hz]" font ",24"
+
+set ylabel "Wzmocnienie [dB]" font ",24"
+set y2label "Margines fazy [deg]" font ",24"
+set y2tics font ",20"
+set ytics font ",20"
+set xtics font ",20"
+
+set key left bottom box font ",24"
+
+set arrow from f3db, graph 0 to f3db, graph 1 \
+    nohead dt 2 lc rgb "red"
+
+set label sprintf("%.3g -3 dB @ %.3g Hz", A0, f3db) \
+    at f3db, gain3db offset 1,1 tc rgb "red"
+
+plot \
+    file every ::1 using 1:2 with lines lw 2 title "Loop Gain", \
+    file every ::1 using 3:(180+$4) axes x1y2 with lines lw 2 title "Phase Margin", \
+    '+' using (f3db):(gain3db) with points pt 7 ps 1.5 lc rgb "red" notitle
+```
+
+Na poniższym wykresie przedstawiono odpowiedź wzmacniacza na skok napięcia.
+
+```{plot} gnuplot
+:caption: Odpowiedź na skok napięcia wzmacniacza operacyjnego w symulacji po ekstrakcie.
+
+set datafile separator ","
+file = "assets/data/opamp_sim_tran_postext.csv"
+
+set xlabel "Czas [s]" font ",24"
+set ylabel "Napięcie [V]" font ",24"
+set key box font ",24"
+set xtics font ",20"
+set ytics font ",20"
+
+plot file using 1:2 with lines title "Odpowiedź wzmacniacza", \
+file using 1:4 with lines title "Przebieg idealny"
+```
+
+```{table} Podsumowanie statystyk wzmacniacza
+| Parametr | Schemat | Layout | Jednostka |
+|---|---|---|---|
+| Wzmocnienie przy spadku o 3dB | 91.4 | 91.4 | dB |
+| Częstotliwość, przy któ©ej wzmocnienie spadło o 3dB | 989  | 989 | Hz |
+| Margines fazy | 76.3 | 74.13 | deg |
+
 ```
 
 ## Projekt klucza dwuwejściowego
