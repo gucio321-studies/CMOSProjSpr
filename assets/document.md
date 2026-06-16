@@ -34,6 +34,26 @@ Zaprojektowano dwustopniowy wzmacniacz operacyjny.
 
 ## Projekt klucza dwuwejściowego
 
+```{admonition} Przełącznik dwuwejściowy
+Układ elektroniczny posiadająćy dwa wejścia: normalnie-otwarrte oraz normalnie-zamknięte,
+sterowany sygnałem cyfrowym.
+
+::::{figure} data/switch2_symbol.png
+:width: 50%
+Symbol elektryczny przełącznika
+::::
+
+Na powyższym schemacie pin `IO1` jest wejściem normalnie-otwartym (ponieważ przy $S=0$ nie przewodzi),
+natomiast pin `IO3` to wejście normalnie-zamknięte (gdyż przy $S=0$ przewodzi).
+
+```
+
+Ukłąd skłąda się z inwertera oraz dwuch bramek transmisyjnych (T-Gate).
+
+```{figure} data/switch2_schematic.png
+Schemat przełącznika dwuwejściowego.
+```
+
 ## Projekt przetwornika cyfrowo-analogowego
 
 Przy pomocy wymienionych wyżej elementów, oraz dodatkowych elementów z biblioteki `PRIMLIB` stworzono schemat
