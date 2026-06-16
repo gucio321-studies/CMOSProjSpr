@@ -161,6 +161,7 @@ set xtics font ",20"
 set ytics font ",20"
 set xzeroaxis linetype 1 linewidth 2 linecolor rgb "black"
 set xtics axis
+set y2tics font ",20"
 
 plot 'assets/data/dac_dnl_schematic.csv' using 1:2 with linespoints pt 3 title "Zależność DNL od stanu", \
 'assets/data/dac_dnl_schematic.csv' using 1:3 with linespoints axes x1y2 pt 4 title "Zależność INL od stanu"
@@ -259,6 +260,7 @@ set xtics font ",20"
 set ytics font ",20"
 set xzeroaxis linetype 1 linewidth 2 linecolor rgb "black"
 set xtics axis
+set y2tics font ",20"
 
 plot 'assets/data/dac_dnl_postextract.csv' using 1:2 with linespoints pt 3 title "Zależność DNL od stanu", \
 'assets/data/dac_dnl_postextract.csv' using 1:3 with linespoints axes x1y2 pt 4 title "Zależność INL od stanu"
@@ -273,7 +275,8 @@ Całkowa nieliniowość wyniosłą $\text{INL} = -2.88 * 10^{-15}$.
 |---|---|---|---|---|
 | $V_{min}$ | 1 | 1.04 | 1.12 | V |
 | $V_{max}$ | 2 | 2.06 | 2.06 | V |
-| $\text{INL}_{\text{peak}}$ | 0 | $0.251$ | $0.654$ |  |
+| $\frac{\text{INL}_{\text{peak}}}{V_{LSB}}$ | 0 | $0.289$ | $0.369$ |  |
+| $\frac{\text{DNL}_{\text{peak}}}{V_{LSB}}$ | 0 | $0.25$ | $0.652$ |  |
 ```
 
 # Podsumowanie
