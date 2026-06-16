@@ -276,12 +276,10 @@ Całkowa nieliniowość wyniosłą $\text{INL} = -2.88 * 10^{-15}$.
 | $\text{INL}_{\text{peak}}$ | 0 | $0.251$ | $0.654$ |  |
 ```
 
-# Obliczenia
-
-# Szacowanie niepewności
-
 # Podsumowanie
 
 # Literatura
 
-- prof. dr hab. inż. Wojciech Łużny - Kurs Mechaniki.
+- prof. dr hab. inż. Marek Idzik - Przetworniki Cyfrowo-Analogowe DAC.
+- dr. inż. Tomasz Fiutowski - Integration of Circuits in CMOS Technology.
+- dr. Inż. Krzysztof Świentek - Projektowanie układów cyfrowych w środowisku Cadence.
