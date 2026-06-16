@@ -487,11 +487,18 @@ set key box font ",24"
 set arrow from  graph 0, first 63 to graph 1, first 63 \
     nohead dt 2 lc rgb "red"
 
-plot file using 1:2 with lines title "zegar", \
-file using 1:4 with lines title "sygnał wyjściowy"
+plot file using 1:4 with lines title "sygnał wyjściowy"
 ```
 
 ```{tip}
+Powyższy wykres zawiera następujące testy:
+
+1. Generacja przebiegu prostokątnego
+2. Sprawdzenie clampowania przebiegu prostokątnego na wartości maksymalnej (brak overflow)
+3. Generacja przebiegu trójkątnego
+4. Sprawdzenie clampowania przebiegu trójkąßnego na wartości maksymalnej (brak overflow)
+5. Generacja przebiegu trójkątnego o mniej stromym zboczu
+
 ```
 
 # Podsumowanie
