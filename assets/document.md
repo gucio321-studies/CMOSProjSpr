@@ -21,10 +21,11 @@ Design kit: AMS 410 in Cadence 2019/2020
 
 # Projekt układu
 
-W trakcie realizacji projektu zaprojektowano trzy układy:
+W trakcie realizacji projektu zaprojektowano następujące układy:
 1. Wzmacniacz operacyjny
 2. Klucz dwuwejściowy
 3. Przetwornik cyfrowo-analogowy
+4. Cyfrowy generator przebiegów
 
 Dla każdego z tych układów wykonano: schemat, layout, ekstrakt z layoutu oraz opracowano zestaw symulacji (uruchomionych zarówno dla schematu jak i dla ekstraktu).
 
@@ -472,6 +473,27 @@ Całkowa nieliniowość wyniosłą $\text{INL} = -2.88 * 10^{-15}$.
 
 # Część cyfrowa
 
+Na podstawie {numref}`wave_gen_src` przygotowano testbench {numbref}`wave_gen_tb`.
+Wykonano symulacje
+
+```{plot} gnuplot
+:caption: Wynik symulacji modułu cyfrowego po symulacji kodu verilog.
+
+set datafile separator ","
+set xlabel "Czas [ps]" font ",24"
+file = "assets/data/wave_gen_sim_code.csv"
+set key box font ",24"
+
+set arrow from  graph 0, first 63 to graph 1, first 63 \
+    nohead dt 2 lc rgb "red"
+
+plot file using 1:2 with lines title "zegar", \
+file using 1:4 with lines title "sygnał wyjściowy"
+```
+
+```{tip}
+```
+
 # Podsumowanie
 
 # Literatura
@@ -479,3 +501,174 @@ Całkowa nieliniowość wyniosłą $\text{INL} = -2.88 * 10^{-15}$.
 - prof. dr hab. inż. Marek Idzik - Przetworniki Cyfrowo-Analogowe DAC.
 - dr. inż. Tomasz Fiutowski - Integration of Circuits in CMOS Technology.
 - dr. Inż. Krzysztof Świentek - Projektowanie układów cyfrowych w środowisku Cadence.
+
+# Aneks
+
+```{code-block} verilog
+:caption: Kod źródłowy modułu wave_gen.
+:name: wave_gen_src
+:linenos:
+
+module wave_gen #(parameter DAC_WIDTH=6) (
+
+   input logic clk, rst_n,
+   input logic square, //waveform selection, 1-square, 0-other
+   input logic [5:0] half_period, //in clock cycles
+   input logic [DAC_WIDTH-1:0] offset, //minimum value of the wave
+   input logic [DAC_WIDTH-1:0] amp, //for square wave only
+   input logic [4:0] step, //for triangle/sawtooth waves
+
+   output logic [DAC_WIDTH-1:0] dac_value_out
+   //output logic [DAC_WIDTH-1:0] dac_value_result
+
+);
+
+logic [DAC_WIDTH-1:0] dac_value;
+
+logic [DAC_WIDTH-1:0] dac_square;
+logic [DAC_WIDTH-1 + 5:0] dac_sawtooth;
+
+assign dac_value = (square) ? dac_square : dac_sawtooth[DAC_WIDTH-1+5:5];
+
+logic [6:0] period_cnt;
+logic [5:0] half_period_cnt;
+logic [5:0] overflow_cnt;
+
+always_ff @(posedge clk, negedge rst_n)
+        if(!rst_n) begin
+		period_cnt <= 0;
+                half_period_cnt <= 0;
+        end else begin
+		if(period_cnt >= 2*half_period-1)
+			period_cnt <= 0;
+		else
+			period_cnt <= period_cnt + 1;
+		if(half_period_cnt >= half_period)
+			half_period_cnt <= 0;
+		else
+			half_period_cnt <= half_period_cnt + 1;
+        end
+
+
+always_ff @(posedge clk, negedge rst_n)
+	if(!rst_n)
+		dac_square <= offset;
+	else
+		if (period_cnt < half_period)
+			dac_square <= offset;
+		else
+                        if (offset <= {DAC_WIDTH{1'b1}} - amp)
+			        dac_square <= offset+amp;
+                        else
+                                dac_square <= {DAC_WIDTH{1'b1}};
+
+
+always_ff @(posedge clk, negedge rst_n)
+        if(!rst_n) begin
+		dac_sawtooth <= {offset,5'b0};
+                overflow_cnt <= 0;
+        end else
+		if (period_cnt ==0)
+			dac_sawtooth <= {offset,5'b0};
+		else
+                        //if (dac_sawtooth < {(DAC_WIDTH+5){1'b1}} - step)
+                        if (period_cnt <= half_period)
+                                if (dac_sawtooth < {(DAC_WIDTH+5){1'b1}} - step)
+			                dac_sawtooth <= dac_sawtooth+step;
+                                else
+                                        overflow_cnt <= overflow_cnt + 1;
+                        else
+                                if (overflow_cnt > 0)
+                                        overflow_cnt <= overflow_cnt - 1;
+                                else
+                                        dac_sawtooth <= dac_sawtooth - step;
+
+always_ff @(posedge clk, negedge rst_n)
+        if (!rst_n)
+                dac_value_out <= offset;
+        else
+                dac_value_out <= dac_value; // to reduce noise.
+
+endmodule
+```
+
+```{code-block} verilog
+:caption: Kod źródłowy testbench'a modułu wave_gen
+:name: wave_gen_tb
+:linenos:
+
+`timescale 1ns/1ps
+module wave_gen_tb;
+
+logic clk = 0;
+logic rst_n = 0;
+logic square = 0;
+
+logic [5:0] half_period = 1; //in clock cycles
+logic [5:0] offset = 1; //minimum value of the wave
+logic [5:0] amp = 3; //for square wave only
+logic [5:0] dac_value;
+logic [4:0] step = 5'b11111;
+
+wave_gen first_impl(
+    .clk,
+    .square,
+    .rst_n,
+    .half_period,
+    .offset,
+    .amp,
+    .step,
+    .dac_value_out(dac_value)
+);
+
+// Input generation
+always #10 clk = ~clk;
+
+// Dump waves
+initial begin
+    $sdf_annotate("syn/output/r2g.sdf", first_impl, ,"sdf-import.log");
+    $dumpfile("wave.vcd");   // output file
+    $dumpvars(0, wave_gen_tb);
+
+    #11 rst_n = 0;
+    // rectangular
+    amp = 30;
+    square = 1;
+    half_period = 2;
+    offset = 15;
+    #15 rst_n = 1;
+
+    // rectangular
+    #400 rst_n = 0;
+    amp = 30;
+    square = 1;
+    half_period = 2;
+    offset = 40;
+    #15 rst_n = 1;
+
+    // pila
+    #400 rst_n = 0;
+    square = 0;
+    half_period = 10;
+    offset = 0;
+    #40 rst_n = 1;
+
+    // pila - broken
+    #800 rst_n = 0;
+    offset = 60;
+    #40 rst_n = 1;
+
+    // piła long
+    #800 rst_n = 0;
+    half_period = 12;
+    offset = 0;
+    square = 0;
+    step = 5'b00111;
+    #40 rst_n = 1;
+
+
+    #800 $finish;
+end
+
+endmodule
+```
