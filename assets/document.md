@@ -134,12 +134,39 @@ Oscylacje są spowodowane niestabilnością wzmacniacza operacyjnego i w trakcie
 Obecny stan jest akceptowalny w kontekście niniejszego projektu.
 ```
 
-Poniższy wykres przedstawia wartości DNL dla poszczegulnych schodków
+Zbadano liniowość przetwornika wyznaczająć jego parametry DNL (Differtential Non-Linearity) oraz INL (Integral Non-Linearity) według wzorów:
 
-```{execute_call}
-print("dupa dupa dupa")
-"dupa dupaaaa"
+$$
+\text{DNL}_n = \frac{\Delta V - V_{LSB}}{V_{LSB}} \\
+\text{INL} = \sum_n \text{DNL}_n
+$$
+
+Gdzie:
+- $\Delta V$ to różnica napięcia miedzy schodkami
+- $V_{LSB} = \frac{V_{max} - V_{min}}{N-1}$
+- $n$ - numer stanu, $n \in \mathbb{N} \cup \left<0, N\right>$
+
+Poniższy wykres przedstawia wartości DNL dla poszczegulnych schodków dla symulacji po schemacie:
+
+```{plot} gnuplot
+:caption: Badanie liniowości przetwornika dla symulacji po schemacie
+
+set datafile separator ","
+set grid
+set key box font ",24"
+set xlabel "Stan" font ",24"
+set ylabel "DNL" font ",24"
+set y2label "INL" font ",24"
+set xtics font ",20"
+set ytics font ",20"
+set xzeroaxis linetype 1 linewidth 2 linecolor rgb "black"
+set xtics axis
+
+plot 'assets/data/dac_dnl_schematic.csv' using 1:2 with linespoints pt 3 title "Zależność DNL od stanu", \
+'assets/data/dac_dnl_schematic.csv' using 1:3 with linespoints axes x1y2 pt 4 title "Zależność INL od stanu"
 ```
+
+Wartość całkowego współczynnika nieliniowości wyniosła $\text{INL} = 2.64 * 10^{-15}$
 
 ### Layout
 
@@ -216,6 +243,29 @@ with lines lw 2 \
 title "Napięcie wyjściowe przetwornika w trakcie zmiany stanu"
 ```
 
+Wyznaczono równiez charakterystykę liniowości DACa:
+
+
+```{plot} gnuplot
+:caption: Badanie liniowości przetwornika dla symulacji po ekstrakcie
+
+set datafile separator ","
+set grid
+set key box font ",24"
+set xlabel "Stan" font ",24"
+set ylabel "DNL" font ",24"
+set y2label "INL" font ",24"
+set xtics font ",20"
+set ytics font ",20"
+set xzeroaxis linetype 1 linewidth 2 linecolor rgb "black"
+set xtics axis
+
+plot 'assets/data/dac_dnl_postextract.csv' using 1:2 with linespoints pt 3 title "Zależność DNL od stanu", \
+'assets/data/dac_dnl_postextract.csv' using 1:3 with linespoints axes x1y2 pt 4 title "Zależność INL od stanu"
+```
+
+Całkowa nieliniowość wyniosłą $\text{INL} = -2.88 * 10^{-15}$.
+
 ### Porównanie wyników symulacji
 
 ```{table} Porównanie wyników symulacji z wartościami oczekiwanymi
@@ -223,7 +273,7 @@ title "Napięcie wyjściowe przetwornika w trakcie zmiany stanu"
 |---|---|---|---|---|
 | $V_{min}$ | 1 | 1.04 | 1.12 | V |
 | $V_{max}$ | 2 | 2.06 | 2.06 | V |
-| $INL$ |  |  |  | - |
+| $\text{INL}_{\text{peak}}$ | 0 | $0.251$ | $0.654$ |  |
 ```
 
 # Obliczenia
