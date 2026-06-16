@@ -131,6 +131,8 @@ def defineLatexVar(varName : str, var : str) -> str:
 
     return r'\newcommand{' + varName + r'}{' + var + "}"
 
+numfig = True
+
 latex_additional_files = ['resources/titlepage.cls']
 latex_elements = {
         "figure_align": "H",
