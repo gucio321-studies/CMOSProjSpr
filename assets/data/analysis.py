@@ -1,38 +1,71 @@
 #!/usr/bin/env python3
 import os, sys
-import pandas
+import pandas as pd
 import numpy as np
 
+# -----------------------------
+# INPUT CHECK
+# -----------------------------
 assert len(sys.argv) > 2, "You must enter filename and output"
 filepath = sys.argv[1]
 assert os.path.isfile(filepath), "The file must be valid"
 
-data = pandas.read_csv(filepath_or_buffer=filepath, sep=",", comment=";")
-#data = data.rename(columns={'1.040020875811852':'V'})
-data.columns = ["0", "V"]
+# -----------------------------
+# LOAD DATA
+# -----------------------------
+data = pd.read_csv(filepath, sep=",", comment=";")
+data.columns = ["t", "V"]
 
-# convert to numpy for speed
-t = data["0"].to_numpy()
+t = data["t"].to_numpy()
 v = data["V"].to_numpy()
 
-t0 = 5e-6  # 5 ps
-dt = 10e-6 # 10 ps
+# -----------------------------
+# DAC PARAMETERS
+# -----------------------------
+t0 = 5e-6
+dt = 10e-6
 N = 2**6
 
 targets = t0 + np.arange(N) * dt
 
-points_table = np.empty(N)
+# -----------------------------
+# SAMPLE (interpolation = ważne!)
+# -----------------------------
+points_table = np.interp(targets, t, v)
 
-idx = np.abs(t[:, None] - targets).argmin(axis=0)
+# -----------------------------
+# NORMALIZACJA KIERUNKU DAC
+# -----------------------------
+# jeśli DAC maleje → odwracamy OŚ ANALIZY
+if points_table[-1] < points_table[0]:
+    points_table = points_table[::-1]
 
-points_table[:] = v[idx]
+# -----------------------------
+# LSB (LEPIEJ Z FITU NIŻ RANGE!)
+# -----------------------------
+k = np.arange(N)
+a, b = np.polyfit(k, points_table, 1)
+v_fit = a * k + b
 
-Vmin = min(points_table)
-Vmax = max(points_table)
-Vlsb = (Vmax-Vmin)/(N-1)
+Vlsb = a  # slope = ideal step
 
-DNL = [(points_table[i-1] - points_table[i]-Vlsb)/Vlsb for i in range(1,N)]
-DNL.reverse()
-INL = np.cumsum(DNL)
-np.savetxt(sys.argv[2], np.column_stack([np.arange(N-1), DNL, INL]), delimiter=",")
-print(f"INL peak: {np.max(np.abs(DNL))}")
+# -----------------------------
+# DNL / INL (datasheet style)
+# -----------------------------
+DNL = np.diff(points_table) / Vlsb - 1
+INL = (points_table - v_fit) / Vlsb
+
+# -----------------------------
+# OUTPUT
+# -----------------------------
+np.savetxt(
+    sys.argv[2],
+    np.column_stack([np.arange(N-1), DNL, INL[:-1]]),
+    delimiter=",",
+    header="code,DNL_LSB,INL_LSB",
+    comments=""
+)
+
+print(f"INL peak / LSB: {np.max(np.abs(INL))}")
+print(f"DNL peak / LSB: {np.max(np.abs(DNL))}")
+print(f"Monotonic: {np.all(np.diff(points_table) > 0)}")
