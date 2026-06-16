@@ -32,6 +32,30 @@ Dla każdego z tych układów wykonano: schemat, layout, ekstrakt z layoutu oraz
 
 Zaprojektowano dwustopniowy wzmacniacz operacyjny.
 
+```{figure} data/opamp_schematic.png
+:name: opamp_sch
+
+Schemat elektryczny wykorzystanego w projekcie wzmacniacza operacyjnego.
+```
+
+Dokonano analizy wzmacniacza operacyjnego w celu uzyskania jego parametrów.
+
+```{note}
+Symulacji dokonano dla wzmacniacza w konfiguracji bufora jak na poniższym schemacie
+
+::::{figure} data/opampsim_schematic.png
+:width: 50%
+Schemat symulacyjny wzmacniacza operacyjnego.
+::::
+
+```
+
+Dla schematu {numref}`opamp_sch` wykonano layout:
+
+```{figure} data/opamp_layout.png
+Layout wzmacniacz operacyjnego.
+```
+
 ## Projekt klucza dwuwejściowego
 
 ```{admonition} Przełącznik dwuwejściowy
@@ -52,6 +76,12 @@ Ukłąd skłąda się z inwertera oraz dwuch bramek transmisyjnych (T-Gate).
 
 ```{figure} data/switch2_schematic.png
 Schemat przełącznika dwuwejściowego.
+```
+
+Następnie wykonano jego layout:
+
+```{figure} data/switch2_layout.png
+Layout przełąćznika dwuwejściowego.
 ```
 
 ## Projekt przetwornika cyfrowo-analogowego
@@ -272,7 +302,7 @@ Wyznaczono równiez charakterystykę liniowości DACa:
 
 set datafile separator ","
 set grid
-set key box font ",24"
+set key box right bottom font ",24"
 set xlabel "Stan" font ",24"
 set ylabel "DNL" font ",24"
 set y2label "INL" font ",24"
@@ -298,6 +328,8 @@ Całkowa nieliniowość wyniosłą $\text{INL} = -2.88 * 10^{-15}$.
 | $\frac{\text{INL}_{\text{peak}}}{V_{LSB}}$ | 0 | $0.289$ | $0.369$ |  |
 | $\frac{\text{DNL}_{\text{peak}}}{V_{LSB}}$ | 0 | $0.25$ | $0.652$ |  |
 ```
+
+# Część cyfrowa
 
 # Podsumowanie
 
