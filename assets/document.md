@@ -484,6 +484,9 @@ set xlabel "Czas [ps]" font ",24"
 file = "assets/data/wave_gen_sim_code.csv"
 set key box font ",24"
 
+set xtics font ",20"
+set ytics font ",20"
+
 set arrow from  graph 0, first 63 to graph 1, first 63 \
     nohead dt 2 lc rgb "red"
 
@@ -499,6 +502,59 @@ Powyższy wykres zawiera następujące testy:
 4. Sprawdzenie clampowania przebiegu trójkąßnego na wartości maksymalnej (brak overflow)
 5. Generacja przebiegu trójkątnego o mniej stromym zboczu
 
+```
+
+Następnie przeprowadzono syntezę modułu `wave_gen` a następnie powtórzono symulacje uwzględniająć opóźnienia:
+
+```{plot} gnuplot
+:caption: Wynik symulacji modułu cyfrowego po symulacji kodu verilog.
+
+set datafile separator ","
+set xlabel "Czas [ps]" font ",24"
+file = "assets/data/wave_gen_sim_synth.csv"
+set key box font ",24"
+
+set xtics font ",20"
+set ytics font ",20"
+
+set arrow from  graph 0, first 63 to graph 1, first 63 \
+    nohead dt 2 lc rgb "red"
+
+plot file using 1:4 with lines title "sygnał wyjściowy"
+```
+
+Wykonano procedurę Place and Root otrzymująć następujący layout całości ukłądu (moduł `wave_gen` połączony z przetwornikiem DAC):
+
+```{figure} data/daccyfr_schematic.png
+Schemat połączenia części cyfrowej i analogowej
+```
+
+```{figure} data/daccyfr_layout.png
+Layout połączonych części cyfrowej i analogowej przetwornika DAC.
+```
+
+Następnie, wykonano krutką symulacje dla przykładowych parametrów wejścia:
+
+```{figure} data/daccyfrsim_schematic.png
+Układ symulacyjny dla całości układu.
+```
+
+Otrzymano następujący przebieg na wyjściu `out`:
+
+```{plot} gnuplot
+:caption: Zależność napięcia od czasu dla symulacji przetwornika cyfrowo-analogowego.
+
+set datafile separator ","
+file = "assets/data/daccyfr_sim_schematic.csv"
+
+set xtics font ",20"
+set ytics font ",20"
+set grid
+set xlabel "Czas [s]" font ",24"
+set ylabel "Napięcie [V]" font ",24"
+set key box font ",24"
+
+plot file using 1:2 with lines title "Wyjście przetwornika cyfrowo-analogowego"
 ```
 
 # Podsumowanie
