@@ -4,15 +4,12 @@
 # Cel projektu
 
 Celem projektu było zaprojektowanie układu prostego przetwornika cyfrowo-analogowego (DAC) w technologii CMOS (ams-0.35um) oraz przeprowadzenie symulacji jego działania.
-DAC miał posiadać 6-bitowe wejście cyfrowe i gnerować odpowiednie napięcie wyjściowe w zakresie od $V_{min} = 1V$ do $V_{max} = 2V$.
-
-# Wstęp teoretyczny
-
-Przetwornik cyfrowo-analogowy (DAC) to urządzenie elektroniczne, które przekształca sygnał cyfrowy (binarny) na napięcie analogowe w danym zakresi.
+DAC wykonany w architekturze I-Steering miał posiadać 6-bitowe wejście cyfrowe i gnerować odpowiednie napięcie wyjściowe w zakresie od $V_{min} = 1V$ do $V_{max} = 2V$.
+Należało również opracować układ cyfrowy generujący na wyjściu odpowiedni przebieg do sterowania przetwornikiem.
 
 # Aparatura i metodyka wykonania
 
-DO wykonania projektu wykorzystano oprogramowanie Cadence Virtuoso w wersji `IC6.1.8-64b.500.6`
+Do wykonania projektu wykorzystano oprogramowanie Cadence Virtuoso w wersji `IC6.1.8-64b.500.6`
 oraz innych narzędzi z pakietu Cadence:
 
 ```console
@@ -45,7 +42,7 @@ Dokonano analizy wzmacniacza operacyjnego w celu uzyskania jego parametrów.
 Symulacji dokonano dla wzmacniacza w konfiguracji bufora jak na poniższym schemacie
 
 ::::{figure} data/opampsim_schematic.png
-:width: 50%
+:width: 75%
 Schemat symulacyjny wzmacniacza operacyjnego.
 ::::
 
@@ -189,19 +186,27 @@ plot file using 1:2 with lines title "Odpowiedź wzmacniacza", \
 file using 1:4 with lines title "Przebieg idealny"
 ```
 
+W poniższej tabeli zestawiono najważniejsze parametry wzmacniacza odczytane z symulatora oraz powyższych wykresów:
+
 ```{table} Podsumowanie statystyk wzmacniacza
+:name: opamp_stats
+
 | Parametr | Schemat | Layout | Jednostka |
 |---|---|---|---|
 | Wzmocnienie przy spadku o 3dB | 91.4 | 91.4 | dB |
-| Częstotliwość, przy któ©ej wzmocnienie spadło o 3dB | 989  | 989 | Hz |
+| Częstotliwość, przy której wzmocnienie spadło o 3dB | 989  | 989 | Hz |
 | Margines fazy | 76.3 | 74.13 | deg |
 
+```
+
+```{important}
+Dane zebrane w {numref}`opamp_stats` pokazują, że parametry wzmacniacza tylko w niewielkim stopniu uległy pogorszeniu (spadek marginesu fazy) po wykonaniu layoutu, dzięki czemu ten wzmacniacz może zostać użyty w dalszej części projektu.
 ```
 
 ## Projekt klucza dwuwejściowego
 
 ```{admonition} Przełącznik dwuwejściowy
-Układ elektroniczny posiadająćy dwa wejścia: normalnie-otwarrte oraz normalnie-zamknięte,
+Układ elektroniczny posiadający dwa wejścia: normalnie-otwarrte oraz normalnie-zamknięte,
 sterowany sygnałem cyfrowym.
 
 ::::{figure} data/switch2_symbol.png
@@ -214,16 +219,16 @@ natomiast pin `IO3` to wejście normalnie-zamknięte (gdyż przy $S=0$ przewodzi
 
 ```
 
-Ukłąd skłąda się z inwertera oraz dwuch bramek transmisyjnych (T-Gate).
+Układ składa się z inwertera oraz dwuch bramek transmisyjnych (T-Gate).
 
 ```{figure} data/switch2_schematic.png
 Schemat przełącznika dwuwejściowego.
 ```
 
-Następnie wykonano jego layout:
+Wykonano layout układu:
 
 ```{figure} data/switch2_layout.png
-Layout przełąćznika dwuwejściowego.
+Layout przełącznika dwuwejściowego.
 ```
 
 ## Projekt przetwornika cyfrowo-analogowego
@@ -231,7 +236,9 @@ Layout przełąćznika dwuwejściowego.
 Przy pomocy wymienionych wyżej elementów, oraz dodatkowych elementów z biblioteki `PRIMLIB` stworzono schemat
 6-bitowego przetwornika cyfrowo-analogowego.
 
-Schemat składa się z części wejściowej wykorzystującej lustra prądowe oraz odpowiednie klucze.
+Schemat składa się z dwóch części: wejściowej i wyjściowej.
+
+Części wejściowa wykorzystuje lustra prądowe oraz odpowiednie klucze.
 Wartość rezystancji $R5$ dobrano tak, aby $I_{R5} = 5\mu A$.
 Wartość szerokości tranzystorów $MPi$ (gdzie $i \in \left\{0,1,2,3,4,5\right\}$) dobrano tak,
 aby prąd płynący przez każdy z nich był równy $I_{MPi} = 2^i * I_{R5}$, tzn. $w_{MPi} = 2^i * w_{MPi}$.
@@ -242,10 +249,10 @@ Schemat części wejściowej przetwornika cyfrowo-analogowego.
 
 Część wyjściowa wykorzystuje wzmacniacz operacyjny w celu zapewnienia odpowiedniej impedancji wyjściowej oraz wzmocnienia sygnału.
 
-Wartości rezystancji $R1$ i $R2$ dobrano tak, aby napięcie referencyjne $V_{ref} = V_{min}$, korzystając ze wzoru na dzielnik napięcia:
+Wartości rezystancji $R1$ i $R2$ dobrano tak, aby napięcie referencyjne $V_{ref} = V_{max}$, korzystając ze wzoru na dzielnik napięcia:
 
 $$
-V_{ref} = V_{min} = \frac{R2}{R1 + R2} * V_{DD}
+V_{ref} = V_{max} = \frac{R2}{R1 + R2} * V_{DD}
 $$
 
 gdzie $V_{DD} = 3.3V$ dla wykorzystywanej technologii.
@@ -326,17 +333,17 @@ Oscylacje są spowodowane niestabilnością wzmacniacza operacyjnego i w trakcie
 Obecny stan jest akceptowalny w kontekście niniejszego projektu.
 ```
 
-Zbadano liniowość przetwornika wyznaczająć jego parametry DNL (Differtential Non-Linearity) oraz INL (Integral Non-Linearity) według wzorów:
+Zbadano liniowość przetwornika wyznaczając jego parametry DNL (Differtential Non-Linearity) oraz INL (Integral Non-Linearity) według wzorów:
 
 $$
 \text{DNL}_n = \frac{\Delta V - V_{LSB}}{V_{LSB}} \\
-\text{INL} = \sum_n \text{DNL}_n
+\text{INL}_m = \sum_{n=0}^m \text{DNL}_n
 $$
 
 Gdzie:
 - $\Delta V$ to różnica napięcia miedzy schodkami
 - $V_{LSB} = \frac{V_{max} - V_{min}}{N-1}$
-- $n$ - numer stanu, $n \in \mathbb{N} \cup \left<0, N\right>$
+- $n, m$ - numer stanu, $n \in \mathbb{N} \cup \left<0, N\right>$
 
 Poniższy wykres przedstawia wartości DNL dla poszczegulnych schodków dla symulacji po schemacie:
 
@@ -359,8 +366,6 @@ plot 'assets/data/dac_dnl_schematic.csv' using 1:2 with linespoints pt 3 title "
 'assets/data/dac_dnl_schematic.csv' using 1:3 with linespoints axes x1y2 pt 4 title "Zależność INL od stanu"
 ```
 
-Wartość całkowego współczynnika nieliniowości wyniosła $\text{INL} = 2.64 * 10^{-15}$
-
 ### Layout
 
 Wykonano layout przetwornika korzystając z narzędzie `Layout XL`:
@@ -372,7 +377,7 @@ Layout przetwornika cyfrowo-analogowego.
 Następnie stworzono ekstrakt z layout'u i powturzono symulacje otrzymując następujące wyniki:
 
 ```{important}
-Z powodu podejrzewanego błędu w extraktorze, ekstrakcji dokonano uwzględniając **wyłącznie pojemności pasożytnicze** (tzw. "C only").
+Z powodu podejrzewanego błędu w ekstraktorze (narzędzie `Quantus 21.1.1-s329`), ekstrakcji dokonano uwzględniając **wyłącznie pojemności pasożytnicze** (tzw. "C only").
 Przy prubie ekstrakcji uwzględniającej opory, układ przestawał działać poprawnie.
 ```
 
@@ -458,8 +463,6 @@ plot 'assets/data/dac_dnl_postextract.csv' using 1:2 with linespoints pt 3 title
 'assets/data/dac_dnl_postextract.csv' using 1:3 with linespoints axes x1y2 pt 4 title "Zależność INL od stanu"
 ```
 
-Całkowa nieliniowość wyniosłą $\text{INL} = -2.88 * 10^{-15}$.
-
 ### Porównanie wyników symulacji
 
 ```{table} Porównanie wyników symulacji z wartościami oczekiwanymi
@@ -474,7 +477,8 @@ Całkowa nieliniowość wyniosłą $\text{INL} = -2.88 * 10^{-15}$.
 # Część cyfrowa
 
 Na podstawie {numref}`wave_gen_src` przygotowano testbench {numbref}`wave_gen_tb`.
-Wykonano symulacje
+
+Wykonano symulację kodu Verilog otrzymując następujący przebieg wyjściowy:
 
 ```{plot} gnuplot
 :caption: Wynik symulacji modułu cyfrowego po symulacji kodu verilog.
@@ -504,7 +508,7 @@ Powyższy wykres zawiera następujące testy:
 
 ```
 
-Następnie przeprowadzono syntezę modułu `wave_gen` a następnie powtórzono symulacje uwzględniająć opóźnienia:
+Następnie przeprowadzono syntezę modułu `wave_gen` po czym powtórzono symulacje uwzględniając opóźnienia przełączania się bramek logicznych:
 
 ```{plot} gnuplot
 :caption: Wynik symulacji modułu cyfrowego po symulacji kodu verilog.
@@ -523,7 +527,7 @@ set arrow from  graph 0, first 63 to graph 1, first 63 \
 plot file using 1:4 with lines title "sygnał wyjściowy"
 ```
 
-Wykonano procedurę Place and Root otrzymująć następujący layout całości ukłądu (moduł `wave_gen` połączony z przetwornikiem DAC):
+Wykonano procedurę Place and Root otrzymując następujący layout całości układu (moduł `wave_gen` połączony z przetwornikiem DAC):
 
 ```{figure} data/daccyfr_schematic.png
 Schemat połączenia części cyfrowej i analogowej
@@ -533,7 +537,7 @@ Schemat połączenia części cyfrowej i analogowej
 Layout połączonych części cyfrowej i analogowej przetwornika DAC.
 ```
 
-Następnie, wykonano krutką symulacje dla przykładowych parametrów wejścia:
+Następnie, wykonano krótką symulacje dla przykładowych parametrów wejścia:
 
 ```{figure} data/daccyfrsim_schematic.png
 Układ symulacyjny dla całości układu.
