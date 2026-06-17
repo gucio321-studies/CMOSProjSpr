@@ -1,5 +1,8 @@
 # Abstrakt
 
+Zaprojektowano przetwornik DAC w architekturze I-Steering z 6-bitowym wejściem.
+Uzyskano napięcie wyjściowe przetwornika w zakresie od $V_{min}=1.12 V$ do $V_{max} = 2.06V$.
+Błąd nieliniowości całkowej otrzymano na poziomie $INL=0.369 V_\text{LSB}$ oraz różniczkowej $DNL=0.652 V_\text{LSB}$.
 
 # Cel projektu
 
@@ -476,7 +479,11 @@ plot 'assets/data/dac_dnl_postextract.csv' using 1:2 with linespoints pt 3 title
 
 # Część cyfrowa
 
-Na podstawie {numref}`wave_gen_src` przygotowano testbench {numbref}`wave_gen_tb`.
+Zaprojektowano generator sygnału cyfrowego w języku Verilog ({numref}`wave_gen_src`) pozwalający generować dwa typy przebiegów:
+- prostokątny (offset, amplituda, pół-okres)
+- trójkątny (offset, skok na cykl zegara, pół-okres)
+
+Przygotowano testbench {numbref}`wave_gen_tb`.
 
 Wykonano symulację kodu Verilog otrzymując następujący przebieg wyjściowy:
 
@@ -563,9 +570,17 @@ plot file using 1:2 with lines title "Wyjście przetwornika cyfrowo-analogowego"
 
 # Podsumowanie
 
-Zaprojektowano przetwornik DAC w architekturze I-Steering z 6-bitowym wejściem.
-Uzyskano napięcie wyjściowe przetwornika w zakresie od $V_{min}=1.12 V$ do $V_{max} = 2.06V$.
-Błąd nieliniowości całkowej otrzymano na poziomie $INL=0.369 V_\text{LSB}$ oraz różniczkowej $DNL=0.652 V_\text{LSB}$.
+Celem projektu było zaprojektowanie i zweryfikowanie działania 6-bitowego przetwornika cyfrowo-analogowego w architekturze I-Steering wraz z cyfrowym generatorem sygnałów sterujących. Cel ten został osiągnięty – wykonano kompletne schematy, layouty oraz symulacje zarówno części analogowej, jak i cyfrowej.
+
+Przeprowadzone analizy potwierdziły poprawne działanie przetwornika oraz możliwość generowania napięcia wyjściowego w zakładanym zakresie. Parametry liniowości uzyskane w symulacjach po schemacie i po ekstrakcji pozostały na akceptowalnym poziomie, choć zaobserwowano pogorszenie charakterystyk po uwzględnieniu pasożytniczych pojemności.
+
+Istotnym elementem projektu było również opracowanie wzmacniacza operacyjnego oraz jego integracja z układem DAC. Porównanie wyników symulacji przed i po wykonaniu layoutu wykazało niewielki wpływ elementów pasożytniczych na parametry wzmacniacza.
+
+Dodatkowo zaprojektowano i zweryfikowano cyfrowy generator przebiegów umożliwiający generację sygnałów prostokątnych oraz trójkątnych o programowalnych parametrach. Integracja części cyfrowej i analogowej została potwierdzona poprzez symulację kompletnego układu.
+
+Uzyskane wyniki pokazują, że zaprojektowany układ spełnia założenia funkcjonalne projektu i może stanowić podstawę do dalszej optymalizacji pod kątem dokładności, liniowości oraz odporności na wpływ pasożytniczych elementów technologicznych.
+
+Należy jednak zauważyć, że pełna weryfikacja po ekstrakcji wymagałaby wyjaśnienia problemów występujących podczas ekstrakcji rezystancji pasożytniczych, które uniemożliwiły przeprowadzenie kompletnych symulacji post-layoutowych.
 
 # Literatura
 
