@@ -470,8 +470,8 @@ plot 'assets/data/dac_dnl_postextract.csv' using 1:2 with linespoints pt 3 title
 |---|---|---|---|---|
 | $V_{min}$ | 1 | 1.04 | 1.12 | V |
 | $V_{max}$ | 2 | 2.06 | 2.06 | V |
-| $\frac{\text{INL}_{\text{peak}}}{V_{LSB}}$ | 0 | $0.289$ | $0.369$ |  |
-| $\frac{\text{DNL}_{\text{peak}}}{V_{LSB}}$ | 0 | $0.25$ | $0.652$ |  |
+| $\text{INL}_{\text{peak}}$ | 0 | $0.289$ | $0.369$ | $V_{\text{LSB}}$ |
+| $\text{DNL}_{\text{peak}}$ | 0 | $0.25$ | $0.652$ | $V_\text{LSB}$ |
 ```
 
 # Część cyfrowa
@@ -562,6 +562,10 @@ plot file using 1:2 with lines title "Wyjście przetwornika cyfrowo-analogowego"
 ```
 
 # Podsumowanie
+
+Zaprojektowano przetwornik DAC w architekturze I-Steering z 6-bitowym wejściem.
+Uzyskano napięcie wyjściowe przetwornika w zakresie od $V_{min}=1.12 V$ do $V_{max} = 2.06V$.
+Błąd nieliniowości całkowej otrzymano na poziomie $INL=0.369 V_\text{LSB}$ oraz różniczkowej $DNL=0.652 V_\text{LSB}$.
 
 # Literatura
 
