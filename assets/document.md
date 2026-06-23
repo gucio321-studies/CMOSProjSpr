@@ -32,127 +32,8 @@ W trakcie realizacji projektu zaprojektowano następujące układy:
 
 Dla każdego z układów wykonano schemat elektryczny oraz przeprowadzono odpowiednie symulacje funkcjonalne.
 
-## Projekt wzmacniacza operacyjnego
-
-Zaprojektowano dwustopniowy wzmacniacz operacyjny.
-
-```{figure} data/opamp_schematic.png
-:name: opamp_sch
-
-Schemat elektryczny wykorzystanego w projekcie wzmacniacza operacyjnego.
-```
-
-Dokonano analizy wzmacniacza operacyjnego w celu wyznaczenia jego podstawowych parametrów.
-
 ```{note}
-Symulacji dokonano dla wzmacniacza w konfiguracji bufora jak na poniższym schemacie
-
-::::{figure} data/opampsim_schematic.png
-:width: 75%
-
-Schemat symulacyjny wzmacniacza operacyjnego.
-:::
-```
-
-```{plot} gnuplot
-:caption: Wzmocnienie oraz margines fazy wzmacniacza operacyjnego.
-
-set datafile separator ","
-
-file = "assets/data/opamp_sim_stb_schematic.csv"
-
-stats file using 2 every ::1::1 nooutput
-A0 = STATS_min
-
-A3 = A0 - 3.0
-
-stats file using (($2 <= A3) ? $1 : 1/0) nooutput
-f3db = STATS_min
-
-stats file using (($1 == f3db) ? $2 : 1/0) nooutput
-gain3db = STATS_min
-
-set logscale x
-set grid
-
-set xlabel "Częstotliwość [Hz]" font ",24"
-
-set ylabel "Wzmocnienie [dB]" font ",24"
-set y2label "Margines fazy [deg]" font ",24"
-set y2tics font ",20"
-set ytics font ",20"
-set xtics font ",20"
-
-set key left bottom box font ",24"
-
-set arrow from f3db, graph 0 to f3db, graph 1 \
-    nohead dt 2 lc rgb "red"
-
-set label sprintf("%.3g -3 dB @ %.3g Hz", A0, f3db) \
-    at f3db, gain3db offset 1,1 tc rgb "red"
-
-plot \
-    file every ::1 using 1:2 with lines lw 2 title "Loop Gain", \
-    file every ::1 using 3:(180+$4) axes x1y2 with lines lw 2 title "Phase Margin", \
-    '+' using (f3db):(gain3db) with points pt 7 ps 1.5 lc rgb "red" notitle
-```
-
-Na poniższym wykresie przedstawiono odpowiedź wzmacniacza na skok napięcia.
-
-```{plot} gnuplot
-:caption: Odpowiedź na skok napięcia wzmacniacza operacyjnego.
-
-set datafile separator ","
-file = "assets/data/opamp_sim_tran_schematic.csv"
-
-set xlabel "Czas [s]" font ",24"
-set ylabel "Napięcie [V]" font ",24"
-set key box font ",24"
-set xtics font ",20"
-set ytics font ",20"
-
-plot file using 1:2 with lines title "Odpowiedź wzmacniacza", \
-file using 1:4 with lines title "Przebieg idealny"
-```
-
-W poniższej tabeli zestawiono najważniejsze parametry wzmacniacza:
-
-```{table} Podsumowanie statystyk wzmacniacza
-:name: opamp_stats
-
-| Parametr | Wartość | Jednostka |
-|---|---|---|
-| Wzmocnienie przy spadku o 3 dB | 91.4 | dB |
-| Częstotliwość graniczna (-3 dB) | 989 | Hz |
-| Margines fazy | 76.3 | deg |
-
-```
-
-```{important}
-Uzyskane parametry potwierdzają poprawną pracę wzmacniacza oraz jego przydatność jako bufora wyjściowego w projektowanym przetworniku DAC.
-```
-
-## Projekt klucza dwuwejściowego
-
-```{admonition} Przełącznik dwuwejściowy
-
-Układ elektroniczny posiadający dwa wejścia: normalnie-otwarte oraz normalnie-zamknięte,
-sterowany sygnałem cyfrowym.
-
-::::{figure} data/switch2_symbol.png
-:width: 50%
-
-Symbol elektryczny przełącznika.
-:::
-
-Na powyższym schemacie pin `IO1` jest wejściem normalnie-otwartym,
-natomiast pin `IO3` jest wejściem normalnie-zamkniętym.
-```
-
-Układ składa się z inwertera oraz dwóch bramek transmisyjnych (T-Gate).
-
-```{figure} data/switch2_schematic.png
-Schemat przełącznika dwuwejściowego.
+W niniejszym sprawozdaniu omówiono jedynie DAC oraz cyfrowy generator przebiegów.
 ```
 
 ## Projekt przetwornika cyfrowo-analogowego
@@ -210,7 +91,7 @@ $$
 
 ```{plot} gnuplot
 :name: dac_sim_sch
-:caption: Zależność napięcia wyjściowego DAC od czasu oraz zależność napięcia wyjściowego od cyfrowego stanu wejścia.
+:caption: Zależność napięcia wyjściowego DAC od czasu dla symulacji schematowej oraz zależność napięcia wyjściowego od cyfrowego stanu wejścia.
 
 set datafile separator ","
 set datafile commentschars ";"
@@ -222,11 +103,10 @@ set key box font ",24"
 set xtics font ",20"
 set ytics font ",20"
 
-t0 = 5e-6
-dt = 10e-6
+t0 = 5e-6      # 5 us
+dt = 10e-6     # 10 us
 f(x) = a*x + b
-eps = 2.51e-6
-
+eps = 2.51e-6 # 2us
 fit f(x) 'assets/data/dac_sim_schematic.vcsv' using \
     (((($1-t0)/dt - floor(($1-t0)/dt)) < eps/dt) ? (floor(($1-t0)/dt + 0.5)) : NaN):2 \
     via a,b
@@ -234,8 +114,15 @@ fit f(x) 'assets/data/dac_sim_schematic.vcsv' using \
 set x2label "Stan" font ",24"
 set x2tics font ",20"
 set x2range [0:2**6]
+set xtics 50
+set mxtics 5
 
-plot "assets/data/dac_sim_schematic.vcsv" using ($1*1e6):2 with lines lw 2 title "Napięcie wyjściowe przetwornika"
+plot "assets/data/dac_sim_schematic.vcsv" using ($1*1e6):2 with lines lw 2 title "Napięcie wyjściowe przetwornika", \
+'assets/data/dac_sim_schematic.vcsv' using \
+(((($1-t0)/dt - floor(($1-t0)/dt)) < eps/dt) ? $1*1e6 : 1/0):2 with points title "Punkt pomiaru napięcia w czasie symulacji" pt 7 ps .5, \
+f(x) axes x2y2 title "Dopasowanie zależności napięćia od nr stanu.", \
+'assets/data/dac_sim_schematic.vcsv' using \
+(((($1-t0)/dt - floor(($1-t0)/dt)) < eps/dt) ? (floor(($1-t0)/dt + 0.5)) : NaN):2 with points axes x2y2 title "Napięcie dla danego stanu" pt 7 ps 0.5
 ```
 
 Przeanalizowano również zachowanie wyjścia podczas przełączania kolejnych stanów.
