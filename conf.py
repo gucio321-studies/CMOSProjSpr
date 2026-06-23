@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('.'))
 # -- Project information -----------------------------------------------------
 import time
 
-project = 'CMOSProjSpr'
+project = 'KAUEProjSpr'
 author = 'Maciej Szeptuch'
 titlepage = {
         "faculty": "Fizyki i Informatyki Stosowanej",
