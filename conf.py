@@ -24,7 +24,7 @@ titlepage = {
         "year": "auto",
         "groupID": "-",
         "team": "-",
-        "title": "Projekt przetwornika cyfrowo-analogowego CMOS",
+        "title": "Projekt przetwornika cyfrowo-analogowego",
         "number": "-",
 
         "taskDate": "auto", # [DATA LABORATORIUM]
@@ -33,7 +33,7 @@ titlepage = {
 
         # nothing to change here
         "author": author,
-        "subject": "PRACOWNIA FIZYCZNA WFiS AGH",
+        "subject": "Komputerowa Analiza Ukłądów Elektronicznych",
 }
 
 if titlepage["taskDate"] == "auto":
