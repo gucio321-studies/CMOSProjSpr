@@ -33,7 +33,7 @@ titlepage = {
 
         # nothing to change here
         "author": author,
-        "subject": "PRACOWNIA FIZYCZNA WFiS AGH",
+        "subject": "Projektowanie układów scalonych w technologii CMOS",
 }
 
 if titlepage["taskDate"] == "auto":
