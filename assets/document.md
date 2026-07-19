@@ -495,13 +495,18 @@ set xlabel "Czas [ps]" font ",24"
 file = "assets/data/wave_gen_sim_code.csv"
 set key box font ",24"
 
+set ylabel "Cyfrowe złożenie bitów" font ",24"
+set y2label "Wyjście cyfrowe" font ",24"
+
 set xtics font ",20"
 set ytics font ",20"
+set y2tics 0,1,1 font ",20"
 
 set arrow from  graph 0, first 63 to graph 1, first 63 \
     nohead dt 2 lc rgb "red"
 
-plot file using 1:4 with lines title "sygnał wyjściowy"
+plot file using 1:4 with lines title "sygnał wyjściowy", \
+file using 1:7 with lines axes x1y2 title "Sygnał resetu"
 ```
 
 ```{tip}
@@ -510,9 +515,13 @@ Powyższy wykres zawiera następujące testy:
 1. Generacja przebiegu prostokątnego
 2. Sprawdzenie clampowania przebiegu prostokątnego na wartości maksymalnej (brak overflow)
 3. Generacja przebiegu trójkątnego
-4. Sprawdzenie clampowania przebiegu trójkąßnego na wartości maksymalnej (brak overflow)
+4. Sprawdzenie clampowania przebiegu trójkątnego na wartości maksymalnej (brak overflow)
 5. Generacja przebiegu trójkątnego o mniej stromym zboczu
 
+```
+
+```{important}
+Wykresy przebiegów zostały wygenerowane przy pomocy symulatora cyfrowego (SimVision) przy okresie przebiegu zegara $T_{clk} = 20ns$.
 ```
 
 Następnie przeprowadzono syntezę modułu `wave_gen` po czym powtórzono symulacje uwzględniając opóźnienia przełączania się bramek logicznych:
@@ -525,13 +534,18 @@ set xlabel "Czas [ps]" font ",24"
 file = "assets/data/wave_gen_sim_synth.csv"
 set key box font ",24"
 
+set ylabel "Cyfrowe złożenie bitów" font ",24"
+set y2label "Wyjście cyfrowe" font ",24"
+
 set xtics font ",20"
 set ytics font ",20"
+set y2tics 0,1,1 font ",20"
 
 set arrow from  graph 0, first 63 to graph 1, first 63 \
     nohead dt 2 lc rgb "red"
 
-plot file using 1:4 with lines title "sygnał wyjściowy"
+plot file using 1:4 with lines title "sygnał wyjściowy", \
+file using 1:7 with lines axes x1y2 title "Sygnał resetu"
 ```
 
 Wykonano procedurę Place and Root otrzymując następujący layout całości układu (moduł `wave_gen` połączony z przetwornikiem DAC):
